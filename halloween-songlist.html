@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Хэллоуин Songlist</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nosifer&family=Creepster&family=Metal+Mania&display=swap');
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body, html {
+            background: transparent !important;
+            font-family: 'Creepster', cursive;
+            color: #ffdddd;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        #container {
+            position: relative;
+            width: 900px;
+            height: 500px;
+            padding: 25px;
+            margin: 0 auto;
+        }
+
+        /* === СТРАШНАЯ КУКЛА === */
+        .doll {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            width: 90px;
+            height: 110px;
+            z-index: 100;
+            filter: drop-shadow(0 0 12px #800000);
+            animation: doll-blink 3.5s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes doll-blink {
+            0%, 90%, 100% { transform: scale(1); }
+            92% { transform: scale(1.08); }
+            94% { transform: scale(0.92); }
+        }
+
+        /* === ПАУТИНА === */
+        .web {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0.6;
+            background: 
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><path fill="none" stroke="%23442200" stroke-width="1.5" opacity="0.5" d="M200 40 Q240 80 280 40 Q320 80 360 40 M200 40 Q160 80 120 40 Q80 80 40 40 M200 40 V360 M40 200 H360 M60 100 Q200 140 340 100 M60 300 Q200 260 340 300 M100 60 Q200 100 300 60 M100 340 Q200 300 300 340"/></svg>') center/contain no-repeat;
+            animation: web-pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes web-pulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.02); }
+        }
+
+        /* === ТАБЛИЦА === */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            z-index: 2;
+            position: relative;
+            background: transparent;
+        }
+
+        th {
+            background: rgba(100, 0, 0, 0.7);
+            color: #ff6666;
+            font-family: 'Nosifer', cursive;
+            font-size: 19px;
+            padding: 14px 10px;
+            text-align: center;
+            text-shadow: 0 0 10px #ff0000, 2px 2px 0 #000;
+            border-bottom: 3px double #600000;
+        }
+
+        td {
+            background: rgba(30, 0, 50, 0.65);
+            padding: 11px 10px;
+            font-size: 18px;
+            text-align: center;
+            text-shadow: 0 0 8px #800000, 1px 1px 0 #000;
+            border-bottom: 1px solid rgba(100, 0, 0, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        tr:nth-child(even) td {
+            background: rgba(40, 0, 60, 0.65);
+        }
+
+        tr:hover td {
+            background: rgba(180, 0, 0, 0.5);
+            transform: translateX(4px);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+        }
+
+        /* Текущая песня */
+        .current td {
+            background: linear-gradient(90deg, rgba(200, 0, 0, 0.9), rgba(120, 0, 0, 0.9));
+            color: #ff9999 !important;
+            font-family: 'Nosifer', cursive !important;
+            font-size: 19px !important;
+            text-shadow: 0 0 15px #ff0000, 0 0 25px #800000 !important;
+            border-left: 5px solid #ff0000;
+            animation: blood-glow 1.8s infinite;
+        }
+
+        @keyframes blood-glow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.6); }
+        }
+
+        /* Цены */
+        .amount {
+            color: #ff3300;
+            font-family: 'Metal Mania', cursive;
+            font-size: 19px;
+            text-shadow: 0 0 10px #ff0000, 2px 2px 0 #000;
+            font-weight: bold;
+        }
+
+        /* === КАПЛИ КРОВИ === */
+        @keyframes drip {
+            0% { transform: translateY(-20px) scale(0.6); opacity: 0; }
+            40% { opacity: 1; }
+            100% { transform: translateY(150px) scale(1); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <!-- Кукла -->
+        <div class="doll">
+            <svg viewBox="0 0 100 120">
+                <circle cx="50" cy="28" r="25" fill="#e8c8b0" stroke="#333" stroke-width="2"/>
+                <circle cx="40" cy="25" r="6" fill="#000"/>
+                <circle cx="60" cy="25" r="6" fill="#000"/>
+                <path d="M38 35 Q50 42 62 35" stroke="#ff0000" stroke-width="3" fill="none"/>
+                <path d="M30 55 Q50 70 70 55" stroke="#000" stroke-width="4" fill="none"/>
+                <path d="M25 85 Q50 100 75 85 V115 H25 Z" fill="#444"/>
+                <path d="M45 90 L50 95 L55 90" stroke="#ff0000" stroke-width="2" fill="none"/>
+            </svg>
+        </div>
+
+        <!-- Паутина -->
+        <div class="web"></div>
+
+        <!-- Таблица -->
+        <table id="songlist">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Artist</th>
+                    <th>Requested By</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        // === ЗАМЕНИ НА СВОЙ ID ИЗ STREAMERSONGLIST ===
+        const STREAMER_ID = 'cover_diva'; // ←←←←←←←←←←←←←←
+
+        const ws = new WebSocket(`wss://api.streamersonglist.com/v1/streamers/${STREAMER_ID}/socket`);
+        let currentSongId = null;
+
+        ws.onopen = () => console.log('Подключено к Streamersonglist');
+        ws.onmessage = (e) => {
+            const data = JSON.parse(e.data);
+            if (data.type === 'songlist') updateSonglist(data.songs);
+        };
+
+        function updateSonglist(songs) {
+            const tbody = document.querySelector('#songlist tbody');
+            tbody.innerHTML = '';
+
+            songs.forEach((song, i) => {
+                const row = document.createElement('tr');
+                if (i === 0) row.className = 'current';
+
+                row.innerHTML = `
+                    <td>${i + 1}</td>
+                    <td>${song.title || '—'}</td>
+                    <td>${song.artist || '—'}</td>
+                    <td>${song.requester || '—'}</td>
+                    <td class="amount">$${song.amount || '0'}</td>
+                `;
+
+                tbody.appendChild(row);
+
+                // Кровь при смене текущей песни
+                if (i === 0 && song.id !== currentSongId) {
+                    currentSongId = song.id;
+                    createBloodDrops();
+                }
+            });
+        }
+
+        function createBloodDrops() {
+            for (let i = 0; i < 7; i++) {
+                setTimeout(() => {
+                    const drop = document.createElement('div');
+                    drop.style.cssText = `
+                        position: absolute;
+                        width: 7px; height: 12px;
+                        background: #8B0000;
+                        border-radius: 50% 50% 50% 0;
+                        transform: rotate(-25deg);
+                        left: ${Math.random() * 70 + 15}%;
+                        top: -10px;
+                        box-shadow: 0 0 8px #800000;
+                        animation: drip 2s ease-out forwards;
+                        z-index: 100;
+                        pointer-events: none;
+                    `;
+                    document.getElementById('container').appendChild(drop);
+                    setTimeout(() => drop.remove(), 2000);
+                }, i * 160);
+            }
+        }
+
+        // Заглушка, если нет ID
+        if (STREAMER_ID.includes('ВСТАВЬ')) {
+            document.querySelector('#songlist tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:#ff6666;">ВСТАВЬ СВОЙ ID В JS</td></tr>';
+        }
+    </script>
+</body>
+</html>
