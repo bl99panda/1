@@ -48,7 +48,7 @@
 
     <script>
         const STREAMER_ID = 'cover_diva';
-        const PAGE_URL = `https://streamersonglist.com/streamer/${STREAMER_ID}`;
+        const PAGE_URL = `https://www.streamersonglist.com/t/${STREAMER_ID}/queue`;
         let currentSongId = null;
 
         function loadSonglist() {
@@ -58,7 +58,7 @@
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
 
-                    // Парсим таблицу (селекторы из реальной страницы)
+                    // Селекторы для таблицы (из реальной страницы)
                     const rows = doc.querySelectorAll('table tr');
                     const songs = [];
                     rows.forEach((row, i) => {
@@ -66,12 +66,17 @@
 
                         const cells = row.querySelectorAll('td');
                         if (cells.length >= 5) {
+                            const title = cells[1].textContent.trim();
+                            const artist = cells[2].textContent.trim();
+                            const requester = cells[3].textContent.trim();
+                            const amount = cells[4].textContent.trim();
+
                             songs.push({
                                 id: i,
-                                title: cells[1].textContent.trim(),
-                                artist: cells[2].textContent.trim(),
-                                requester: cells[3].textContent.trim(),
-                                amount: cells[4].textContent.trim()
+                                title: title,
+                                artist: artist,
+                                requester: requester,
+                                amount: amount
                             });
                         }
                     });
@@ -83,7 +88,7 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Ошибка парсинга:', error);
+                    console.error('Ошибка:', error);
                     document.querySelector('#songlist tbody').innerHTML = '<tr><td colspan="5" style="color:#ff6666;">Ошибка загрузки</td></tr>';
                 });
         }
@@ -115,7 +120,7 @@
             }
         }
 
-        // Загрузка каждые 15 секунд (чтобы не нагружать)
+        // Загрузка каждые 15 секунд
         loadSonglist();
         setInterval(loadSonglist, 15000);
     </script>
