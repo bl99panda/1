@@ -47,22 +47,43 @@
     </div>
 
     <script>
-        const STREAMER_ID = 'cover_diva';  // Твой ID
-        const API_URL = `https://api.streamersonglist.com/v1/streamers/${STREAMER_ID}/songs?limit=10`;
+        const STREAMER_ID = 'cover_diva';
+        const PAGE_URL = `https://streamersonglist.com/streamer/${STREAMER_ID}`;
         let currentSongId = null;
 
         function loadSonglist() {
-            fetch(API_URL)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.data && data.data.length > 0) {
-                        updateList(data.data);
+            fetch(PAGE_URL)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    // Парсим таблицу (селекторы из реальной страницы)
+                    const rows = doc.querySelectorAll('table tr');
+                    const songs = [];
+                    rows.forEach((row, i) => {
+                        if (i === 0) return; // Заголовок
+
+                        const cells = row.querySelectorAll('td');
+                        if (cells.length >= 5) {
+                            songs.push({
+                                id: i,
+                                title: cells[1].textContent.trim(),
+                                artist: cells[2].textContent.trim(),
+                                requester: cells[3].textContent.trim(),
+                                amount: cells[4].textContent.trim()
+                            });
+                        }
+                    });
+
+                    if (songs.length > 0) {
+                        updateList(songs);
                     } else {
                         document.querySelector('#songlist tbody').innerHTML = '<tr><td colspan="5" style="color:#ff6666;">Очередь пуста</td></tr>';
                     }
                 })
                 .catch(error => {
-                    console.error('Ошибка API:', error);
+                    console.error('Ошибка парсинга:', error);
                     document.querySelector('#songlist tbody').innerHTML = '<tr><td colspan="5" style="color:#ff6666;">Ошибка загрузки</td></tr>';
                 });
         }
@@ -73,7 +94,7 @@
             songs.forEach((song, i) => {
                 const row = document.createElement('tr');
                 if (i === 0) row.className = 'current';
-                row.innerHTML = `<td>${i+1}</td><td>${song.title || '—'}</td><td>${song.artist || '—'}</td><td>${song.requester || '—'}</td><td class="amount">$${song.amount || '0'}</td>`;
+                row.innerHTML = `<td>${i+1}</td><td>${song.title}</td><td>${song.artist}</td><td>${song.requester}</td><td class="amount">${song.amount}</td>`;
                 tbody.appendChild(row);
 
                 if (i === 0 && song.id !== currentSongId) {
@@ -94,14 +115,9 @@
             }
         }
 
-        // Загрузка каждые 10 секунд
+        // Загрузка каждые 15 секунд (чтобы не нагружать)
         loadSonglist();
-        setInterval(loadSonglist, 10000);
-
-        // Заглушка
-        if (STREAMER_ID === 'cover_diva') {
-            document.querySelector('#songlist tbody').innerHTML = '<tr><td colspan="5" style="color:#ff6666;">Загрузка очереди...</td></tr>';
-        }
+        setInterval(loadSonglist, 15000);
     </script>
 </body>
 </html>
