@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Хэллоуин Songlist</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Nosifer&family=Creepster&family=Metal+Mania&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Nosifer&family=Creepster&display=swap');
         * { margin:0; padding:0; box-sizing:border-box; }
         body, html { background:transparent; font-family:'Creepster',cursive; color:#ffdddd; overflow:hidden; height:100vh; }
         #container { position:relative; width:900px; height:500px; padding:25px; margin:0 auto; }
@@ -22,7 +22,6 @@
         tr:hover td { background:rgba(180,0,0,0.5); transform:translateX(4px); box-shadow:0 0 20px rgba(255,0,0,0.6); }
         .current td { background:linear-gradient(90deg,rgba(200,0,0,0.9),rgba(120,0,0,0.9)); color:#ff9999; font-family:'Nosifer',cursive; border-left:5px solid #ff0000; animation:glow 1.8s infinite; }
         @keyframes glow { 0%,100% { filter:brightness(1); } 50% { filter:brightness(1.6); } }
-        .amount { color:#ff3300; font-family:'Metal Mania',cursive; font-size:19px; text-shadow:0 0 10px #ff0000; }
 
         @keyframes drip { 0% { transform:translateY(-20px) scale(0.6); opacity:0; } 40% { opacity:1; } 100% { transform:translateY(150px) scale(1); opacity:0; } }
     </style>
@@ -41,42 +40,34 @@
         </div>
         <div class="web"></div>
         <table id="songlist">
-            <thead><tr><th>#</th><th>Title</th><th>Artist</th><th>Requested By</th><th>Amount</th></tr></thead>
+            <thead><tr><th>#</th><th>Title</th><th>Artist</th></tr></thead>
             <tbody></tbody>
         </table>
     </div>
 
     <script>
         const STREAMER_ID = 'cover_diva';
+        const PROXY_URL = 'https://api.allorigins.win/raw?url=';
         const PAGE_URL = `https://www.streamersonglist.com/t/${STREAMER_ID}/queue`;
         let currentSongId = null;
 
         function loadSonglist() {
-            fetch(PAGE_URL)
+            fetch(PROXY_URL + encodeURIComponent(PAGE_URL))
                 .then(response => response.text())
                 .then(html => {
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
-
-                    // Селекторы для таблицы (из реальной страницы)
                     const rows = doc.querySelectorAll('table tr');
                     const songs = [];
+
                     rows.forEach((row, i) => {
-                        if (i === 0) return; // Заголовок
-
+                        if (i === 0) return;
                         const cells = row.querySelectorAll('td');
-                        if (cells.length >= 5) {
-                            const title = cells[1].textContent.trim();
-                            const artist = cells[2].textContent.trim();
-                            const requester = cells[3].textContent.trim();
-                            const amount = cells[4].textContent.trim();
-
+                        if (cells.length >= 3) {
                             songs.push({
                                 id: i,
-                                title: title,
-                                artist: artist,
-                                requester: requester,
-                                amount: amount
+                                title: cells[1].textContent.trim(),
+                                artist: cells[2].textContent.trim()
                             });
                         }
                     });
@@ -84,12 +75,11 @@
                     if (songs.length > 0) {
                         updateList(songs);
                     } else {
-                        document.querySelector('#songlist tbody').innerHTML = '<tr><td colspan="5" style="color:#ff6666;">Очередь пуста</td></tr>';
+                        document.querySelector('#songlist tbody').innerHTML = '<tr><td colspan="3" style="color:#ff6666;">Очередь пуста</td></tr>';
                     }
                 })
-                .catch(error => {
-                    console.error('Ошибка:', error);
-                    document.querySelector('#songlist tbody').innerHTML = '<tr><td colspan="5" style="color:#ff6666;">Ошибка загрузки</td></tr>';
+                .catch(() => {
+                    document.querySelector('#songlist tbody').innerHTML = '<tr><td colspan="3" style="color:#ff6666;">Ошибка</td></tr>';
                 });
         }
 
@@ -99,7 +89,7 @@
             songs.forEach((song, i) => {
                 const row = document.createElement('tr');
                 if (i === 0) row.className = 'current';
-                row.innerHTML = `<td>${i+1}</td><td>${song.title}</td><td>${song.artist}</td><td>${song.requester}</td><td class="amount">${song.amount}</td>`;
+                row.innerHTML = `<td>${i+1}</td><td>${song.title}</td><td>${song.artist}</td>`;
                 tbody.appendChild(row);
 
                 if (i === 0 && song.id !== currentSongId) {
@@ -120,7 +110,6 @@
             }
         }
 
-        // Загрузка каждые 15 секунд
         loadSonglist();
         setInterval(loadSonglist, 15000);
     </script>
