@@ -47,7 +47,7 @@
 
     <script>
         const STREAMER_ID = 'cover_diva';
-        const PROXY_URL = 'https://api.allorigins.win/raw?url=';
+        const PROXY_URL = 'https://corsproxy.io/?';
         const PAGE_URL = `https://www.streamersonglist.com/t/${STREAMER_ID}/queue`;
         let currentSongId = null;
 
@@ -64,11 +64,11 @@
                         if (i === 0) return;
                         const cells = row.querySelectorAll('td');
                         if (cells.length >= 3) {
-                            songs.push({
-                                id: i,
-                                title: cells[1].textContent.trim(),
-                                artist: cells[2].textContent.trim()
-                            });
+                            const title = cells[1].textContent.trim();
+                            const artist = cells[2].textContent.trim();
+                            if (title && artist) {
+                                songs.push({ id: i, title, artist });
+                            }
                         }
                     });
 
@@ -78,7 +78,8 @@
                         document.querySelector('#songlist tbody').innerHTML = '<tr><td colspan="3" style="color:#ff6666;">Очередь пуста</td></tr>';
                     }
                 })
-                .catch(() => {
+                .catch(err => {
+                    console.error(err);
                     document.querySelector('#songlist tbody').innerHTML = '<tr><td colspan="3" style="color:#ff6666;">Ошибка</td></tr>';
                 });
         }
@@ -115,3 +116,4 @@
     </script>
 </body>
 </html>
+
